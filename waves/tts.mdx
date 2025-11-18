@@ -1,0 +1,175 @@
+---
+title: "How to Use Waves Text-to-Speech (TTS)"
+description: "Convert text into natural-sounding speech in seconds. Waves TTS supports multiple voices and audio formats, making it easy to integrate speech into your app."
+---
+
+## Quick Start
+
+1. Get your API key from [dashboard](https://smallest.ai)
+2. Make a POST request with your text
+3. Receive an audio URL instantly
+
+## Endpoint
+
+`POST https://api.smallest.ai/waves/tts`
+
+## Required Headers
+
+```
+Authorization: Bearer <YOUR_API_KEY>
+Content-Type: application/json
+```
+
+## Request Body
+
+| Field  | Type   | Required | Description                                                           |
+| ------ | ------ | -------- | --------------------------------------------------------------------- |
+| text   | string | Yes      | The text you want to convert to speech                                |
+| voice  | string | No       | Voice ID to use (defaults to `"default"`)                             |
+| format | string | No       | Output audio format : `"mp3"`, `"wav"`, `"flac"` (defaults to `"mp3"`) |
+
+
+## Available Voices
+
+| Voice ID | Description            | Language     |
+| -------- | ---------------------- | ------------ |
+| default  | Standard neutral voice | English (US) |
+
+_Note: Contact support for the full list of available voices and languages._
+
+## Sample Request (curl)
+
+```bash
+curl -X POST "https://api.smallest.ai/waves/tts" \
+  -H "Authorization: Bearer $WAVES_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello! This audio was generated using Waves TTS.",
+    "voice": "default",
+    "format": "mp3"
+  }'
+```
+
+## Sample Response
+
+```json
+{
+  "audio_url": "https://waves.smallest.ai/output/9f3c2d12.mp3",
+  "duration_ms": 1450,
+  "voice_used": "default",
+  "format": "mp3"
+}
+```
+
+### Response Fields
+
+| Field       | Type    | Description                            |
+| ----------- | ------- | -------------------------------------- |
+| audio_url   | string  | Direct URL to the generated audio file |
+| duration_ms | integer | Length of the audio in milliseconds    |
+| voice_used  | string  | Voice ID that was used for generation  |
+| format      | string  | Audio format of the generated file     |
+
+The `audio_url` contains the generated speech file. You can stream it, download it, or store it in your application.
+
+## Code Examples
+
+### JavaScript Example
+
+```javascript
+import fetch from "node-fetch";
+
+try {
+  const response = await fetch("https://api.smallest.ai/waves/tts", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.WAVES_API_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      text: "Generating speech from JavaScript!",
+      voice: "default",
+      format: "mp3"
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const result = await response.json();
+  console.log(result.audio_url);
+} catch (error) {
+  console.error("Error generating speech:", error);
+}
+```
+
+### Python Example
+
+```python
+import requests
+import os
+
+try:
+    response = requests.post(
+        "https://api.smallest.ai/waves/tts",
+        headers={
+            "Authorization": f"Bearer {os.getenv('WAVES_API_KEY')}",
+            "Content-Type": "application/json"
+        },
+        json={
+            "text": "Generating speech from Python!",
+            "voice": "default",
+            "format": "mp3"
+        }
+    )
+    
+    response.raise_for_status()
+    result = response.json()
+    print(result["audio_url"])
+    
+except requests.exceptions.RequestException as error:
+    print(f"Error generating speech: {error}")
+```
+
+## Error Responses
+
+| Status Code | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| 400         | Invalid request (missing required fields or invalid parameters) |
+| 401         | Invalid or missing API key                                      |
+| 429         | Rate limit exceeded                                             |
+| 500         | Internal server error                                           |
+
+### Example Error Response
+
+```json
+{
+  "error": "Invalid API key",
+  "code": "UNAUTHORIZED"
+}
+```
+
+## Rate Limits
+
+- **Free tier**: 100 requests per day
+- **Pro tier**: 10,000 requests per day
+
+Check response headers for current usage information.
+
+## Best Practices
+
+- Keep input text under 500 characters per request for optimal performance
+- For long-form audio, split text into smaller chunks and concatenate the audio on the client side
+- Cache generated audio files to reduce API calls for repeated text
+- Use appropriate audio formats based on your use case:
+  - `mp3`: Best for web streaming (smaller file size)
+  - `wav`: Best for high-quality audio editing
+  - `flac`: Best for lossless compression
+
+## Next Steps
+
+- [Voice customization guide](#)
+- [Batch processing tutorial](#)
+- [Full API reference](#)
+- [Integration examples](#)
